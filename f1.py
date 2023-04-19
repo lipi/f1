@@ -1,6 +1,8 @@
 
 import sys
 
+from collections import defaultdict
+
 LAPS = 70
 
 base_slow=81.564
@@ -14,6 +16,16 @@ def lap_time(lap, fast=True):
         return base_fast + lap * increase_fast        
     else:
         return base_slow + lap * increase_slow
+
+class Tire():
+    
+    def __init__(self, fast=True) -> None:
+        self.fast = fast
+        self.laps = 0
+        
+    def lap_time(self):
+        self.laps += 1
+        return lap_time(self.laps, self.fast)
 
 def race(pit_lap_a, pit_lap_b, debug=False):
     """
@@ -39,9 +51,12 @@ def race(pit_lap_a, pit_lap_b, debug=False):
     
     leader = 'A'
     
+    driver_a_tire = Tire(fast=True)
+    driver_b_tire = Tire(fast=False)
+    
     for lap in range(1, LAPS+1):
-        lap_time_a = lap_time(lap, fast=(not has_a_pitted))
-        lap_time_b = lap_time(lap, fast=has_b_pitted)
+        lap_time_a = driver_a_tire.lap_time()
+        lap_time_b = driver_b_tire.lap_time()
         
         race_time_a += lap_time_a
         race_time_b += lap_time_b
@@ -55,14 +70,16 @@ def race(pit_lap_a, pit_lap_b, debug=False):
         # who pitted?
         if lap == pit_lap_a:
             race_time_a += 20
+            driver_a_tire = Tire(fast=False)
             
         if lap == pit_lap_b:
             race_time_b += 20
+            driver_b_tire = Tire(fast=True)
         
         # leader changed?
         if race_time_a > race_time_b:
             leader = 'B'
-        else:
+        if race_time_a < race_time_b:
             leader = 'A'
 
         if debug:
@@ -72,13 +89,34 @@ def race(pit_lap_a, pit_lap_b, debug=False):
 
     return leader
 
+def check_all():
+    results = defaultdict(dict)
+    for pit_lap_a in range(1,LAPS+1):
+        print(f'Driver A pit lap: {pit_lap_a:02d} ', end='')
+        for pit_lap_b in range(1, LAPS+1):
+            winner = race(pit_lap_a, pit_lap_b)
+            print(winner, end='')
+            results[pit_lap_a][pit_lap_b] = winner
+        print()
+    
+    return results
+            
+
 if __name__ == '__main__':
     try:
         a = int(sys.argv[1])
         b = int(sys.argv[2])
     except IndexError:
-        print(f'Usage: {sys.argv[0]} <pit_lap_A> <pit_lap_B>')
+        check_all()
         exit()
         
     winner = race(a, b, debug=True)
     print(f"Winner: {winner}")
+    
+    '''
+Driver B pit lap:             1         2
+                     12345678901234567890
+A driver pit lap: 01 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+A driver pit lap: 02 BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    
+    '''
