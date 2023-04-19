@@ -15,63 +15,7 @@ def lap_time(lap, fast=True):
     else:
         return base_slow + lap * increase_slow
 
-def total_time(lap, fast=True):
-    total = 0
-    for i in range(lap):
-        total = total + lap_time(i+1, fast)
-    return total
-
-def total_time_fast_slow(lap, pit_lap):
-    total = 0
-    for i in range(lap):
-        if i + 1 < pit_lap:
-            total = total + lap_time(i+1, fast=True)
-        if i + 1 == pit_lap:
-            total = total + lap_time(i+1, fast=True) + 20
-        if i + 1 > pit_lap:
-            total = total + lap_time(i+1-pit_lap, fast=False)
-    return total
-
-def total_time_slow_fast(lap, pit_lap):
-    total = 0
-    for i in range(lap):
-        if i + 1 < pit_lap:
-            total = total + lap_time(i+1, fast=False)
-        if i + 1 == pit_lap:
-            total = total + lap_time(i+1, fast=False) + 20
-        if i + 1 > pit_lap:
-            total = total + lap_time(i+1-pit_lap, fast=True)
-    return total 
-
-def race(fast_slow_pit_lap, slow_fast_pit_lap, debug=False):
-
-    catchup_lap = None
-    for lap in range(1,LAPS+1):
-        
-        if lap == slow_fast_pit_lap:
-            slow_fast_pit_lap_marker = 'pit:'
-        else:
-            slow_fast_pit_lap_marker = '   '
-            
-        if lap == fast_slow_pit_lap:
-            fast_slow_pit_lap_marker = 'pit:'
-        else:
-            fast_slow_pit_lap_marker = '   '
-            
-        fast_slow = total_time_fast_slow(lap, fast_slow_pit_lap)
-        slow_fast = total_time_slow_fast(lap, slow_fast_pit_lap)
-        if fast_slow > slow_fast:
-            catchup_lap = lap
-            catchup_marker = '!!!'
-        else:
-            catchup_marker = ''
-        if debug:
-            print(f"{lap} {lap_time(lap):.3f} {total_time(lap):.3f} {fast_slow_pit_lap_marker} {fast_slow:.3f} {slow_fast_pit_lap_marker} {slow_fast:.3f} {catchup_marker}")
-        
-    overtake = catchup_lap < fast_slow_pit_lap 
-    return overtake
-
-def race2(pit_lap_a, pit_lap_b, debug=False):
+def race(pit_lap_a, pit_lap_b, debug=False):
     """
     Parameters: pit laps for each driver
     
@@ -136,5 +80,5 @@ if __name__ == '__main__':
         print(f'Usage: {sys.argv[0]} <pit_lap_A> <pit_lap_B>')
         exit()
         
-    winner = race2(a, b, debug=True)
+    winner = race(a, b, debug=True)
     print(f"Winner: {winner}")
