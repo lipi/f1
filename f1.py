@@ -159,11 +159,16 @@ if __name__ == '__main__':
     try:
         a = int(sys.argv[1])
         b = int(sys.argv[2])
+        c = int(sys.argv[3])
+        d = int(sys.argv[4])
     except IndexError:
         check_all(debug=True)
         exit()
         
-    winner = race(a, b)
+    winner = race(
+        TireSet({0: FastTire(), a: SlowTire(), b: FastTire()}),
+        TireSet({0: SlowTire(), c: FastTire(), d: FastTire()}),
+        debug=True)
     print(f"Winner: {winner}")
     
     '''
