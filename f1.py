@@ -1,7 +1,7 @@
 
 import sys
-
 from collections import defaultdict
+import cProfile
 
 LAPS = 70
 
@@ -89,15 +89,18 @@ def race(pit_lap_a, pit_lap_b, debug=False):
 
     return leader
 
-def check_all():
+def check_all(debug=False):
     results = defaultdict(dict)
     for pit_lap_a in range(1,LAPS+1):
-        print(f'Driver A pit lap: {pit_lap_a:02d} ', end='')
+        if debug:
+            print(f'Driver A pit lap: {pit_lap_a:02d} ', end='')
         for pit_lap_b in range(1, LAPS+1):
             winner = race(pit_lap_a, pit_lap_b)
-            print(winner, end='')
+            if debug:
+                print(winner, end='')
             results[pit_lap_a][pit_lap_b] = winner
-        print()
+        if debug:
+            print()
     
     return results
             
@@ -107,10 +110,10 @@ if __name__ == '__main__':
         a = int(sys.argv[1])
         b = int(sys.argv[2])
     except IndexError:
-        check_all()
+        check_all(debug=True)
         exit()
         
-    winner = race(a, b, debug=True)
+    winner = race(a, b)
     print(f"Winner: {winner}")
     
     '''
