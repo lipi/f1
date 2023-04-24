@@ -1,7 +1,10 @@
 
 import sys
 from collections import defaultdict
-import cProfile
+import numpy as np
+import itertools
+import pickle
+from tqdm import tqdm
 
 LAPS = 70
 
@@ -141,24 +144,24 @@ def race(
             print(f'{lap:2d} : {lap_time_a:6.3f} ({a}) {lap_time_b:6.3f} ({b})  {pit_a} {race_time_a:8.3f}  {pit_b} {race_time_b:8.3f} {leader}')
 
     return leader
-
+        
 def check_all(debug=False):
-    results = defaultdict(dict)
-    for pit_lap_a in range(1,LAPS+1):
+    results = np.zeros((LAPS, LAPS, LAPS, LAPS), dtype=np.bool)
+    numbers = range(1,LAPS)
+    pit_stops_a = itertools.combinations(numbers, 2)
+    pit_stops_b = itertools.combinations(numbers, 2)
+    total = int(len(numbers)**2 * (len(numbers)-1)**2 / 4)
+    quads = itertools.product(pit_stops_a, pit_stops_b)
+    for quad in tqdm(quads, total=total):
+        (a,b),(c,d) = quad
+        winner = race(
+            TireSet({0: MediumTire(), a: SoftTire(), b: MediumTire()}),
+            TireSet({0: SoftTire(), c: MediumTire(), d: MediumTire()}))
         if debug:
-            print(f'Driver A pit lap: {pit_lap_a:02d} ', end='')
-        for pit_lap_b in range(1, LAPS+1):
-            winner = race(
-                TireSet({0: MediumTire(), pit_lap_a: SoftTire()}),
-                TireSet({0: SoftTire(), pit_lap_b: MediumTire()}))
-            if debug:
-                print(winner, end='')
-            results[pit_lap_a][pit_lap_b] = winner
-        if debug:
-            print()
+            print(f'Driver A pit laps: {a:2d} {b:2d}  Driver B pit laps: {c:2d} {d:2d} winner: {winner}')
+        results[a, b, c, d] = ('A' in winner)
     
     return results
-            
 
 if __name__ == '__main__':
     try:
@@ -167,7 +170,8 @@ if __name__ == '__main__':
         c = int(sys.argv[3])
         d = int(sys.argv[4])
     except IndexError:
-        check_all(debug=True)
+        results = check_all(debug=False)
+        pickle.dump( results, open( "results.p", "wb" ) )
         exit()
         
     winner = race(
