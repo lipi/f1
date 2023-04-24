@@ -5,11 +5,11 @@ import cProfile
 
 LAPS = 70
 
-base_slow=81.564
-base_fast=81.545
+base_soft=81.564
+base_medium=81.545
 
-increase_slow=0.0614
-increase_fast=0.0435
+increase_soft=0.0614
+increase_medium=0.0435
 
 '''
 Driver B pit lap:             1         2
@@ -19,37 +19,37 @@ A driver pit lap: 02 BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     
 '''
 
-class FastTire():
+class MediumTire():
     
     def __init__(self) -> None:
         self.laps = 0
         
     def __str__(self) -> str:
-        return 'Fast'
+        return 'M'
         
     def lap_time(self):
         self.laps += 1
-        return base_fast + self.laps * increase_fast
+        return base_medium + self.laps * increase_medium
 
-class SlowTire():
+class SoftTire():
     
     def __init__(self) -> None:
         self.laps = 0
 
     def __str__(self) -> str:
-        return 'Slow'  
+        return 'S'  
     
     def lap_time(self):
         self.laps += 1
-        return base_slow + self.laps * increase_slow
+        return base_soft + self.laps * increase_soft
 
 
 class TireSet():
     
     def __init__(self, tires={ 
-            0: FastTire(),
-            20: SlowTire(),
-            40: FastTire()
+            0: MediumTire(),
+            20: SoftTire(),
+            40: MediumTire()
         }) -> None:
         '''
         Tireset with pit laps and tires
@@ -81,8 +81,8 @@ class TireSet():
         return self.laps in self.tires.keys()
 
 def race(
-    tires_a=TireSet({0: FastTire(), 20: SlowTire(), 40: FastTire()}),
-    tires_b=TireSet({0: SlowTire(), 30: FastTire(), 50: FastTire()}),
+    tires_a=TireSet({0: MediumTire(), 20: SoftTire(), 40: MediumTire()}),
+    tires_b=TireSet({0: SoftTire(), 30: MediumTire(), 50: MediumTire()}),
     debug=False):
     """
     Parameters: tire set for each driver
@@ -104,6 +104,9 @@ def race(
     
     leader = 'A'
     
+    if debug:
+        print('lap  lap_A      lap_B           total_A     total_B  leader')
+        print('-----------------------------------------------------------')
     for lap in range(1, LAPS+1):
         lap_time_a = tires_a.lap_time()
         lap_time_b = tires_b.lap_time()
@@ -126,14 +129,16 @@ def race(
         
         # leader changed?
         if race_time_a > race_time_b:
-            leader = 'B'
+            leader = ' B'
         if race_time_a < race_time_b:
-            leader = 'A'
+            leader = 'A '
 
         if debug:
+            a = str(tires_a.current_tire)
+            b = str(tires_b.current_tire)
             pit_a = ['  ', 'P:'][tires_a.pit_lap()]
             pit_b = ['  ', 'P:'][tires_b.pit_lap()]
-            print(f'{lap} : {lap_time_a:.3f} {lap_time_b:.3f} -- {pit_a} {race_time_a:.3f}  {pit_b} {race_time_b:.3f} {leader}')
+            print(f'{lap:2d} : {lap_time_a:6.3f} ({a}) {lap_time_b:6.3f} ({b})  {pit_a} {race_time_a:8.3f}  {pit_b} {race_time_b:8.3f} {leader}')
 
     return leader
 
@@ -144,8 +149,8 @@ def check_all(debug=False):
             print(f'Driver A pit lap: {pit_lap_a:02d} ', end='')
         for pit_lap_b in range(1, LAPS+1):
             winner = race(
-                TireSet({0: FastTire(), pit_lap_a: SlowTire()}),
-                TireSet({0: SlowTire(), pit_lap_b: FastTire()}))
+                TireSet({0: MediumTire(), pit_lap_a: SoftTire()}),
+                TireSet({0: SoftTire(), pit_lap_b: MediumTire()}))
             if debug:
                 print(winner, end='')
             results[pit_lap_a][pit_lap_b] = winner
@@ -166,8 +171,8 @@ if __name__ == '__main__':
         exit()
         
     winner = race(
-        TireSet({0: FastTire(), a: SlowTire(), b: FastTire()}),
-        TireSet({0: SlowTire(), c: FastTire(), d: FastTire()}),
+        TireSet({0: MediumTire(), a: SoftTire(), b: MediumTire()}),
+        TireSet({0: SoftTire(), c: MediumTire(), d: MediumTire()}),
         debug=True)
     print(f"Winner: {winner}")
     
