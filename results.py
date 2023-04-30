@@ -10,7 +10,6 @@ results = pickle.load(open( "results.p", "rb" ))
 
 size = (LAPS-1) * (LAPS-2) // 2
 
-
 # go through all rows and check for all-blue
 for a,b in pitstops():
     all_blue = True
@@ -62,10 +61,6 @@ image_matrix = np.zeros((size, size, 3), dtype=np.uint8)
 for i,(a,b) in enumerate(tqdm(pitstops(), total=size)):
     for j,(c,d) in enumerate(pitstops()):
         image_matrix[i, j] = color_map[results[a, b, c, d]]
-        
-
-
-        
         
 image = Image.fromarray(image_matrix)
 

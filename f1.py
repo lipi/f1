@@ -130,11 +130,17 @@ def race(
         if tires_b.pit_lap():
             race_time_b += 20
         
-        # leader changed?
-        if race_time_a > race_time_b:
-            leader = ' B'
-        if race_time_a < race_time_b:
-            leader = 'A '
+        if tires_a.pit_lap() and tires_b.pit_lap():
+            # both pit, leader remains
+            pass
+        else:
+            # at least one pit, leader changes
+            if tires_a.pit_lap() or tires_b.pit_lap():
+                # leader changed?
+                if race_time_a > race_time_b:
+                    leader = ' B'
+                if race_time_a < race_time_b:
+                    leader = 'A '
 
         if debug:
             a = str(tires_a.current_tire)
