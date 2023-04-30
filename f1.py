@@ -145,12 +145,16 @@ def race(
 
     return leader
         
+        
+def pitstops():
+    numbers = range(1,LAPS)  # no pitstop in last lap
+    return itertools.combinations(numbers, 2)
+    
 def check_all(debug=False):
-    results = np.zeros((LAPS, LAPS, LAPS, LAPS), dtype=np.bool)
-    numbers = range(1,LAPS)
-    pit_stops_a = itertools.combinations(numbers, 2)
-    pit_stops_b = itertools.combinations(numbers, 2)
-    total = int(len(numbers)**2 * (len(numbers)-1)**2 / 4)
+    results = np.zeros((LAPS, LAPS, LAPS, LAPS), dtype=np.int8)
+    pit_stops_a = pitstops()
+    pit_stops_b = pitstops()
+    total = (LAPS-1)**2 * (LAPS-2)**2 // 4
     quads = itertools.product(pit_stops_a, pit_stops_b)
     for quad in tqdm(quads, total=total):
         (a,b),(c,d) = quad
@@ -159,8 +163,8 @@ def check_all(debug=False):
             TireSet({0: SoftTire(), c: MediumTire(), d: MediumTire()}))
         if debug:
             print(f'Driver A pit laps: {a:2d} {b:2d}  Driver B pit laps: {c:2d} {d:2d} winner: {winner}')
-        results[a, b, c, d] = ('A' in winner)
-    
+        results[a, b, c, d] = [-1, 1]['A' in winner]
+        
     return results
 
 if __name__ == '__main__':
