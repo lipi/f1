@@ -165,7 +165,8 @@ def check_all(debug=False):
     for quad in tqdm(quads, total=total):
         (a,b),(c,d) = quad
         winner = race(
-            TireSet({0: MediumTire(), a: SoftTire(), b: MediumTire()}),
+            # TireSet({0: MediumTire(), a: SoftTire(), b: MediumTire()}),
+            TireSet({0: MediumTire(), a: MediumTire(), b: SoftTire()}),
             TireSet({0: SoftTire(), c: MediumTire(), d: MediumTire()}))
         if debug:
             print(f'Driver A pit laps: {a:2d} {b:2d}  Driver B pit laps: {c:2d} {d:2d} winner: {winner}')
@@ -181,6 +182,9 @@ if __name__ == '__main__':
         d = int(sys.argv[4])
     except IndexError:
         results = check_all(debug=False)
+        unique, counts = np.unique(results, return_counts=True)
+        print(dict(zip(unique, counts)))
+        
         pickle.dump( results, open( "results.p", "wb" ) )
         exit()
         
